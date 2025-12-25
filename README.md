@@ -1,4 +1,4 @@
-# PHP_Laravel12_Stripe_Payment
+# PHP_Laravel12_Stripe_Payment_Gateway
 
 A simple and secure **Stripe Payment Gateway integration** using **Laravel 12**. This project demonstrates **one-time card payments**, payment validation, database storage, and payment history tracking. It is ideal for **beginners, interviews, and real-world projects**.
 
