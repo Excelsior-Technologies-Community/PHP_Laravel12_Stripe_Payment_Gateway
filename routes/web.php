@@ -3,13 +3,49 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StripePaymentController;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Stripe Payment Routes
-Route::controller(StripePaymentController::class)->group(function(){
-    Route::get('stripe', 'stripe')->name('stripe');
-    Route::post('stripe', 'stripePost')->name('stripe.post');
-    Route::get('payment-history', 'history')->name('payment.history');
+/*
+|--------------------------------------------------------------------------
+| Stripe Payment Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::controller(StripePaymentController::class)->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Form
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/stripe', 'stripe')->name('stripe');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Process Payment
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/stripe', 'stripePost')->name('stripe.post');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment History
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/payment-history', 'history')->name('payment.history');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Payment
+    |--------------------------------------------------------------------------
+    */
+    Route::delete('/payment/{id}', 'destroy')->name('payment.destroy');
 });
