@@ -159,6 +159,18 @@
             border-color: #0d6efd;
 
         }
+
+        .delete-form {
+            margin: 0;
+        }
+
+        .delete-form button {
+            white-space: nowrap;
+        }
+
+        .btn-sm {
+            min-width: 100px;
+        }
     </style>
 
 </head>
@@ -227,9 +239,9 @@
             <div class="col-md-2">
                 <select class="form-select" name="status">
                     <option value="">All Status</option>
-                    <option value="succeeded" @selected(request('status') == 'succeeded')>Succeeded</option>
-                    <option value="failed" @selected(request('status') == 'failed')>Failed</option>
-                    <option value="pending" @selected(request('status') == 'pending')>Pending</option>
+                    <option value="succeeded" @selected(request('status')=='succeeded' )>Succeeded</option>
+                    <option value="failed" @selected(request('status')=='failed' )>Failed</option>
+                    <option value="pending" @selected(request('status')=='pending' )>Pending</option>
                 </select>
             </div>
             <div class="col-md-2"><input type="date" class="form-control" name="from_date"
@@ -239,9 +251,9 @@
             <div class="col-md-2">
                 <select class="form-select" name="sort">
                     <option value="latest">Latest</option>
-                    <option value="oldest" @selected(request('sort') == 'oldest')>Oldest</option>
-                    <option value="amount_high" @selected(request('sort') == 'amount_high')>Amount High</option>
-                    <option value="amount_low" @selected(request('sort') == 'amount_low')>Amount Low</option>
+                    <option value="oldest" @selected(request('sort')=='oldest' )>Oldest</option>
+                    <option value="amount_high" @selected(request('sort')=='amount_high' )>Amount High</option>
+                    <option value="amount_low" @selected(request('sort')=='amount_low' )>Amount Low</option>
                 </select>
             </div>
             <div class="col-md-1"><button class="btn btn-success w-100">Go</button></div>
@@ -262,56 +274,80 @@
             </thead>
             <tbody>
                 @forelse($payments as $payment)
-                    <tr>
-                        <td>{{ $payment->id }}</td>
-                        <td>{{ $payment->name }}</td>
-                        <td>{{ $payment->email }}</td>
-                        <td>${{ number_format($payment->amount, 2) }}</td>
-                        <td><span
-                                class="badge bg-{{ $payment->status == 'succeeded' ? 'success' : 'danger' }}">{{ $payment->status }}</span>
-                        </td>
-                        <td>{{ $payment->created_at->format('d M Y h:i A') }}</td>
-                        <td>{{ $payment->stripe_charge_id }}</td>
-                        <td>
-                            <form method="POST" action="{{ route('payment.destroy', $payment->id) }}" class="delete-form">
+                <tr>
+                    <td>{{ $payment->id }}</td>
+                    <td>{{ $payment->name }}</td>
+                    <td>{{ $payment->email }}</td>
+                    <td>${{ number_format($payment->amount, 2) }}</td>
+                    <td><span
+                            class="badge bg-{{ $payment->status == 'succeeded' ? 'success' : 'danger' }}">{{ $payment->status }}</span>
+                    </td>
+                    <td>{{ $payment->created_at->format('d M Y h:i A') }}</td>
+                    <td>{{ $payment->stripe_charge_id }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+
+                            <a href="{{ route('payment.receipt', $payment->id) }}"
+                                class="btn btn-success btn-sm">
+                                <i class="fa-solid fa-file-pdf me-1"></i>
+                                Receipt
+                            </a>
+
+                            <form action="{{ route('payment.destroy', $payment->id) }}"
+                                method="POST"
+                                class="delete-form m-0">
+
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-sm btn-danger">Delete</button>
+
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fa-solid fa-trash me-1"></i>
+                                    Delete
+                                </button>
+
                             </form>
-                        </td>
-                    </tr>
+
+                        </div>
+                    </td>
+                </tr>
                 @empty
-                    <tr>
-                        <td colspan="8" class="text-center">No payments found.</td>
-                    </tr>
+                <tr>
+                    <td colspan="8" class="text-center">No payments found.</td>
+                </tr>
                 @endforelse
             </tbody>
         </table>
 
         @if ($payments->lastPage() > 1)
-            <div class="d-flex justify-content-center mt-4">
-                <nav>
-                    <ul class="pagination">
+        <div class="d-flex justify-content-center mt-4">
+            <nav>
+                <ul class="pagination">
 
-                        @for ($i = 1; $i <= $payments->lastPage(); $i++)
-                            <li class="page-item {{ $payments->currentPage() == $i ? 'active' : '' }}">
-                                <a class="page-link" href="{{ $payments->url($i) }}">
-                                    {{ $i }}
-                                </a>
-                            </li>
+                    @for ($i = 1; $i <= $payments->lastPage(); $i++)
+                        <li class="page-item {{ $payments->currentPage() == $i ? 'active' : '' }}">
+                            <a class="page-link" href="{{ $payments->url($i) }}">
+                                {{ $i }}
+                            </a>
+                        </li>
                         @endfor
 
-                    </ul>
-                </nav>
-            </div>
+                </ul>
+            </nav>
+        </div>
         @endif
 
     </div>
     <script>
         document.querySelectorAll('.delete-form').forEach(f => {
-            f.addEventListener('submit', function (e) {
+            f.addEventListener('submit', function(e) {
                 e.preventDefault();
-                Swal.fire({ title: 'Delete payment?', icon: 'warning', showCancelButton: true }).then(r => { if (r.isConfirmed) f.submit(); });
+                Swal.fire({
+                    title: 'Delete payment?',
+                    icon: 'warning',
+                    showCancelButton: true
+                }).then(r => {
+                    if (r.isConfirmed) f.submit();
+                });
             });
         });
     </script>
