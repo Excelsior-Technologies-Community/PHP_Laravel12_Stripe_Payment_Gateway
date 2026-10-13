@@ -12,7 +12,7 @@ use App\Http\Controllers\PaymentReceiptController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('payment.history');
 });
 
 /*
@@ -21,51 +21,39 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/payment-receipt/{id}', [PaymentReceiptController::class,'download'])->name('payment.receipt');
-
+Route::get('/payment-receipt/{id}', [PaymentReceiptController::class, 'download'])->name('payment.receipt');
 
 Route::controller(StripePaymentController::class)->group(function () {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Payment Form
-    |--------------------------------------------------------------------------
-    */
+    // Payment Form (Modern Elements Studio)
     Route::get('/stripe', 'stripe')->name('stripe');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Process Payment
-    |--------------------------------------------------------------------------
-    */
+    // Create PaymentIntent (Modern API)
+    Route::post('/stripe/create-payment-intent', 'createPaymentIntent')->name('stripe.payment-intent');
+
+    // Confirm Payment
+    Route::post('/stripe/confirm-payment', 'confirmPayment')->name('stripe.confirm-payment');
+
+    // Legacy Charge Submission
     Route::post('/stripe', 'stripePost')->name('stripe.post');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Payment History
-    |--------------------------------------------------------------------------
-    */
+    // 1-Click Refund Engine (Full / Partial)
+    Route::post('/payment/{id}/refund', 'refund')->name('payment.refund');
+
+    // Payment History & Analytics Studio
     Route::get('/payment-history', 'history')->name('payment.history');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Delete Payment
-    |--------------------------------------------------------------------------
-    */
+    // Delete Payment
     Route::delete('/payment/{id}', 'destroy')->name('payment.destroy');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Stripe Webhook Route
+| Stripe Webhook Routes
 |--------------------------------------------------------------------------
 */
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 
 Route::controller(StripeWebhookController::class)->group(function () {
-
-    Route::get('/webhook-history', 'history')
-        ->name('webhook.history');
-
+    Route::get('/webhook-history', 'history')->name('webhook.history');
 });
